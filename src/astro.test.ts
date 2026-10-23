@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dayPhase, dayProgress, moonPhase, moonPhaseName, sunTimes, todaysSunTimes } from './astro';
+import { dayPhase, dayProgress, moonPass, moonPhase, moonPhaseName, nextSunrise, sunTimes, todaysSunTimes } from './astro';
 
 const CHICAGO = [41.8781, -87.6298] as const;
 const MIN = 60_000;
@@ -49,5 +49,42 @@ describe('moon phase', () => {
     const nu = moonPhase(Date.parse('2026-01-18T19:52:00Z'));
     expect(Math.min(nu.phase, 1 - nu.phase)).toBeLessThan(0.03);
     expect(moonPhaseName(0.37)).toBe('Waxing gibbous');
+  });
+});
+
+describe('golden hour and the moon', () => {
+  const noon = Date.parse('2026-10-22T17:00:00Z');
+
+  it('puts the golden-hour edges inside the day, near sunrise and sunset', () => {
+    const day = todaysSunTimes(noon, ...CHICAGO, 'America/Chicago');
+    const gold = todaysSunTimes(noon, ...CHICAGO, 'America/Chicago', 6);
+    expect(gold.sunrise! - day.sunrise!).toBeGreaterThan(20 * MIN);
+    expect(gold.sunrise! - day.sunrise!).toBeLessThan(90 * MIN);
+    expect(day.sunset! - gold.sunset!).toBeGreaterThan(20 * MIN);
+    expect(day.sunset! - gold.sunset!).toBeLessThan(90 * MIN);
+  });
+
+  it('finds the next sunrise after sunset', () => {
+    const evening = Date.parse('2026-10-23T02:00:00Z'); // 9 PM CDT on the 22nd
+    const t = nextSunrise(evening, ...CHICAGO, 'America/Chicago')!;
+    expect(new Date(t).toISOString().slice(0, 10)).toBe('2026-10-23');
+  });
+
+  it('brackets the moon\'s pass around now, or finds the next one', () => {
+    for (let h = 0; h < 48; h += 3) {
+      const now = noon + h * 3_600_000;
+      const pass = moonPass(now, ...CHICAGO);
+      expect(pass.rise).not.toBeNull();
+      expect(pass.set).not.toBeNull();
+      if (pass.up) {
+        expect(pass.rise!).toBeLessThanOrEqual(now);
+        expect(pass.set!).toBeGreaterThanOrEqual(now);
+      } else {
+        expect(pass.rise!).toBeGreaterThan(now);
+      }
+      const hours = (pass.set! - pass.rise!) / 3_600_000;
+      expect(hours).toBeGreaterThan(8);
+      expect(hours).toBeLessThan(17);
+    }
   });
 });

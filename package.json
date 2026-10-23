@@ -1,6 +1,6 @@
 {
   "name": "sun-clock",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Home Screens plugin: sun arc with the current time, sunrise/sunset icons and a sun/moon phase icon",
   "license": "MIT",
   "scripts": {

@@ -1,8 +1,8 @@
 {
   "id": "sun-clock",
   "name": "Sun Arc Clock",
-  "version": "1.0.0",
-  "description": "The sun's arc from sunrise to sunset with the current time above the horizon, sunrise and sunset icons, and a center icon that moves from rising sun to full sun to setting sun to tonight's moon phase.",
+  "version": "1.1.0",
+  "description": "The sun's arc from sunrise to sunset with the current time, golden hour and a countdown to sunset; after dark it follows the moon instead. Sunrise and sunset icons, and a center icon from rising sun to full sun to setting sun to tonight's moon phase.",
   "author": "Ryan",
   "license": "MIT",
   "minAppVersion": "1.7.1",
@@ -24,7 +24,11 @@
     "showNoon": true,
     "showSunOnArc": true,
     "accentColor": "#fbbf24",
-    "softShadow": true
+    "softShadow": true,
+    "autoSize": true,
+    "showGoldenHour": true,
+    "nightArc": true,
+    "showCountdown": true
   },
   "defaultSize": {
     "w": 860,
@@ -38,9 +42,22 @@
   "configSchema": {
     "type": "object",
     "properties": {
+      "autoSize": {
+        "type": "boolean",
+        "title": "Grow text with the module",
+        "description": "Sizes the times and labels to the module, for reading from across the room. Off: use the Text size setting as is.",
+        "ui:widget": "toggle",
+        "ui:group": "Clock"
+      },
       "showClock": {
         "type": "boolean",
         "title": "Show the current time above the horizon",
+        "ui:widget": "toggle",
+        "ui:group": "Clock"
+      },
+      "showCountdown": {
+        "type": "boolean",
+        "title": "Show the countdown to sunset / sunrise",
         "ui:widget": "toggle",
         "ui:group": "Clock"
       },
@@ -53,8 +70,16 @@
       "timeFormat": {
         "type": "string",
         "title": "Clock times",
-        "enum": ["auto", "12h", "24h"],
-        "enumLabels": ["Household setting", "12-hour", "24-hour"],
+        "enum": [
+          "auto",
+          "12h",
+          "24h"
+        ],
+        "enumLabels": [
+          "Household setting",
+          "12-hour",
+          "24-hour"
+        ],
         "ui:widget": "select",
         "ui:group": "Clock"
       },
@@ -96,8 +121,16 @@
       "iconBackdrop": {
         "type": "string",
         "title": "Sun / moon icon background",
-        "enum": ["sky", "plain", "none"],
-        "enumLabels": ["Sky color for the time of day", "Plain circle", "None"],
+        "enum": [
+          "sky",
+          "plain",
+          "none"
+        ],
+        "enumLabels": [
+          "Sky color for the time of day",
+          "Plain circle",
+          "None"
+        ],
         "ui:widget": "select",
         "ui:group": "Icons"
       },
@@ -110,8 +143,14 @@
       "iconStyle": {
         "type": "string",
         "title": "Icon style",
-        "enum": ["color", "line"],
-        "enumLabels": ["Color", "Line"],
+        "enum": [
+          "color",
+          "line"
+        ],
+        "enumLabels": [
+          "Color",
+          "Line"
+        ],
         "ui:widget": "select",
         "ui:group": "Icons"
       },
@@ -130,6 +169,20 @@
       "showSunOnArc": {
         "type": "boolean",
         "title": "Show the sun's position on the arc",
+        "ui:widget": "toggle",
+        "ui:group": "Arc"
+      },
+      "showGoldenHour": {
+        "type": "boolean",
+        "title": "Shade golden hour on the arc",
+        "description": "The first and last hour or so of sunlight, when the sun is under 6°.",
+        "ui:widget": "toggle",
+        "ui:group": "Arc"
+      },
+      "nightArc": {
+        "type": "boolean",
+        "title": "Follow the moon at night",
+        "description": "After sunset the arc shows the moon’s rise, set and position, with its phase name on top.",
         "ui:widget": "toggle",
         "ui:group": "Arc"
       },

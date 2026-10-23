@@ -6,6 +6,8 @@ A Home Screens module based on the built-in Sunrise / Sunset arc view, with:
 - **A center icon** that changes through the day: rising sun → full sun → setting sun → tonight's moon phase.
   The rising/setting sun shows for a configurable window (default 45 min) either side of sunrise/sunset.
 - **Sunrise and sunset icons** beside the sunrise (left) and sunset (right) times.
+- **Golden hour** shaded at both ends of the arc, and a **countdown** to sunset (or, after dark, to sunrise) above the clock.
+- **The moon at night:** after sunset the arc follows the moon, with moonrise, moonset, its position and its phase name on top.
 - The sun's position on the arc, with the part of the day already passed drawn solid.
 
 Sun times and the moon phase are computed locally from the display's location; nothing is fetched.

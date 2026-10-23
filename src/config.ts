@@ -16,6 +16,10 @@ export interface Config {
   showSunOnArc: boolean;
   accentColor: string;
   softShadow: boolean;
+  autoSize: boolean;
+  showGoldenHour: boolean;
+  nightArc: boolean;
+  showCountdown: boolean;
 }
 
 export const DEFAULTS: Config = {
@@ -34,6 +38,10 @@ export const DEFAULTS: Config = {
   showSunOnArc: true,
   accentColor: '#fbbf24',
   softShadow: true,
+  autoSize: true,
+  showGoldenHour: true,
+  nightArc: true,
+  showCountdown: true,
 };
 
 const bool = (v: unknown, fallback: boolean) => (typeof v === 'boolean' ? v : v === 'true' ? true : v === 'false' ? false : fallback);
@@ -66,5 +74,9 @@ export function readConfig(raw: Record<string, unknown>): Config {
     showSunOnArc: bool(raw.showSunOnArc, DEFAULTS.showSunOnArc),
     accentColor: typeof raw.accentColor === 'string' && raw.accentColor ? raw.accentColor : DEFAULTS.accentColor,
     softShadow: bool(raw.softShadow, DEFAULTS.softShadow),
+    autoSize: bool(raw.autoSize, DEFAULTS.autoSize),
+    showGoldenHour: bool(raw.showGoldenHour, DEFAULTS.showGoldenHour),
+    nightArc: bool(raw.nightArc, DEFAULTS.nightArc),
+    showCountdown: bool(raw.showCountdown, DEFAULTS.showCountdown),
   };
 }

@@ -57,8 +57,10 @@ export interface SunTimes {
 }
 
 /** Sunrise, sunset and solar noon for the day whose solar transit is nearest
- *  `ms`. Pass a moment near local noon to get that calendar day. */
-export function sunTimes(ms: number, lat: number, lng: number): SunTimes {
+ *  `ms`. Pass a moment near local noon to get that calendar day. With
+ *  `altitudeDeg`, "sunrise" and "sunset" are instead when the sun climbs past
+ *  and sinks back to that altitude (6 for the edges of golden hour). */
+export function sunTimes(ms: number, lat: number, lng: number, altitudeDeg?: number): SunTimes {
   const lw = RAD * -lng;
   const phi = RAD * lat;
   const n = Math.round(toDays(ms) - J0 - lw / (2 * Math.PI));
@@ -69,7 +71,8 @@ export function sunTimes(ms: number, lat: number, lng: number): SunTimes {
   const jNoon = J2000 + ds + 0.0053 * Math.sin(M) - 0.0069 * Math.sin(2 * L);
   const solarNoon = fromJulian(jNoon);
 
-  const cosH = (Math.sin(HORIZON) - Math.sin(phi) * Math.sin(dec)) / (Math.cos(phi) * Math.cos(dec));
+  const h0 = altitudeDeg == null ? HORIZON : RAD * altitudeDeg;
+  const cosH = (Math.sin(h0) - Math.sin(phi) * Math.sin(dec)) / (Math.cos(phi) * Math.cos(dec));
   if (cosH < -1) return { sunrise: null, sunset: null, solarNoon, polar: 'day' };
   if (cosH > 1) return { sunrise: null, sunset: null, solarNoon, polar: 'night' };
 
@@ -126,11 +129,76 @@ export function localDate(ms: number, timezone?: string): [number, number, numbe
 
 /** Today's sun times for the household's calendar day, not the one nearest
  *  in solar time: just after midnight the nearest noon can be yesterday's. */
-export function todaysSunTimes(now: number, lat: number, lng: number, timezone?: string): SunTimes {
+export function todaysSunTimes(now: number, lat: number, lng: number, timezone?: string, altitudeDeg?: number): SunTimes {
   const [y, m, d] = localDate(now, timezone);
   // Noon UTC shifted by longitude lands near this place's own solar noon.
   const localNoon = Date.UTC(y, m - 1, d, 12) - (lng / 15) * 3_600_000;
-  return sunTimes(localNoon, lat, lng);
+  return sunTimes(localNoon, lat, lng, altitudeDeg);
+}
+
+/** The next sunrise after `now`: today's if it's still to come, else tomorrow's. */
+export function nextSunrise(now: number, lat: number, lng: number, timezone?: string): number | null {
+  for (let k = 0; k < 3; k++) {
+    const t = todaysSunTimes(now + k * DAY_MS, lat, lng, timezone).sunrise;
+    if (t != null && t > now) return t;
+  }
+  return null;
+}
+
+// ── The moon in the sky ─────────────────────────────────────────────────────
+
+const siderealTime = (d: number, lw: number) => RAD * (280.16 + 360.9856235 * d) - lw;
+
+/** The moon's altitude above the horizon in radians, refraction included. */
+export function moonAltitude(ms: number, lat: number, lng: number): number {
+  const lw = RAD * -lng;
+  const phi = RAD * lat;
+  const d = toDays(ms);
+  const c = moonCoords(d);
+  const H = siderealTime(d, lw) - c.ra;
+  const h = Math.asin(Math.sin(phi) * Math.sin(c.dec) + Math.cos(phi) * Math.cos(c.dec) * Math.cos(H));
+  const hr = Math.max(0, h);
+  return h + 0.0002967 / Math.tan(hr + 0.00312536 / (hr + 0.08901179));
+}
+
+export interface MoonPass {
+  /** Epoch ms of the moonrise and moonset bounding the pass; null if none
+   *  was found within a day and a half (polar summers and winters). */
+  rise: number | null;
+  set: number | null;
+  /** Whether the moon is above the horizon at `now`. */
+  up: boolean;
+}
+
+/** The moon's pass across the sky that is under way at `now`, or the next one
+ *  if it is down. Found by stepping its altitude in 10-minute strides, which
+ *  is well inside the minute or two a wall display needs. */
+export function moonPass(now: number, lat: number, lng: number): MoonPass {
+  // The altitude of the moon's upper limb at the horizon, as SunCalc uses.
+  const HC = 0.133 * RAD;
+  const STEP = 600_000;
+  const LIMIT = 36 * 3_600_000;
+  const alt = (t: number) => moonAltitude(t, lat, lng) - HC;
+  /** The first time from `t0`, stepping by `dir`, where the altitude's sign flips to `toUp`. */
+  const crossing = (t0: number, dir: 1 | -1, toUp: boolean): number | null => {
+    let ta = t0;
+    let a = alt(ta);
+    for (let k = 0; k < LIMIT / STEP; k++) {
+      const tb = ta + dir * STEP;
+      const b = alt(tb);
+      // Going forward we look for the sign becoming `toUp`; backward, for where
+      // it was the opposite just before.
+      const flipped = dir === 1 ? (b > 0) === toUp && (a > 0) !== toUp : (a > 0) === toUp && (b > 0) !== toUp;
+      if (flipped) return ta + dir * STEP * (a / (a - b));
+      ta = tb;
+      a = b;
+    }
+    return null;
+  };
+  const up = alt(now) > 0;
+  if (up) return { up, rise: crossing(now, -1, true), set: crossing(now, 1, false) };
+  const rise = crossing(now, 1, true);
+  return { up, rise, set: rise == null ? null : crossing(rise + 60_000, 1, false) };
 }
 
 export type DayPhase = 'rising' | 'day' | 'setting' | 'night';

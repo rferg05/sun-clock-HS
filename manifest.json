@@ -1,0 +1,158 @@
+{
+  "id": "sun-clock",
+  "name": "Sun Arc Clock",
+  "version": "1.0.0",
+  "description": "The sun's arc from sunrise to sunset with the current time above the horizon, sunrise and sunset icons, and a center icon that moves from rising sun to full sun to setting sun to tonight's moon phase.",
+  "author": "Ryan",
+  "license": "MIT",
+  "minAppVersion": "1.7.1",
+  "moduleType": "sun-clock",
+  "category": "Weather & Environment",
+  "icon": "Sunrise",
+  "defaultConfig": {
+    "showClock": true,
+    "showSeconds": false,
+    "timeFormat": "auto",
+    "clockScale": 1,
+    "showPhaseIcon": true,
+    "phaseWindow": 45,
+    "phaseIconScale": 1,
+    "iconBackdrop": "sky",
+    "showSideIcons": true,
+    "iconStyle": "color",
+    "showLabels": true,
+    "showNoon": true,
+    "showSunOnArc": true,
+    "accentColor": "#fbbf24",
+    "softShadow": true
+  },
+  "defaultSize": {
+    "w": 860,
+    "h": 420
+  },
+  "defaultStyle": {
+    "fontSize": 18,
+    "padding": 16,
+    "backgroundColor": "rgba(0, 0, 0, 0.35)"
+  },
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "showClock": {
+        "type": "boolean",
+        "title": "Show the current time above the horizon",
+        "ui:widget": "toggle",
+        "ui:group": "Clock"
+      },
+      "showSeconds": {
+        "type": "boolean",
+        "title": "Show seconds",
+        "ui:widget": "toggle",
+        "ui:group": "Clock"
+      },
+      "timeFormat": {
+        "type": "string",
+        "title": "Clock times",
+        "enum": ["auto", "12h", "24h"],
+        "enumLabels": ["Household setting", "12-hour", "24-hour"],
+        "ui:widget": "select",
+        "ui:group": "Clock"
+      },
+      "clockScale": {
+        "type": "number",
+        "title": "Clock size",
+        "minimum": 0.4,
+        "maximum": 1.6,
+        "ui:widget": "slider",
+        "ui:step": 0.05,
+        "ui:group": "Clock"
+      },
+      "showPhaseIcon": {
+        "type": "boolean",
+        "title": "Show the sun / moon icon",
+        "description": "Rising sun, full sun, setting sun, then the moon's current phase.",
+        "ui:widget": "toggle",
+        "ui:group": "Icons"
+      },
+      "phaseWindow": {
+        "type": "number",
+        "title": "Rising / setting sun window (minutes)",
+        "description": "The rising or setting sun shows for this many minutes either side of sunrise and sunset.",
+        "minimum": 5,
+        "maximum": 180,
+        "ui:widget": "slider",
+        "ui:step": 5,
+        "ui:group": "Icons"
+      },
+      "phaseIconScale": {
+        "type": "number",
+        "title": "Sun / moon icon size",
+        "minimum": 0.5,
+        "maximum": 1.5,
+        "ui:widget": "slider",
+        "ui:step": 0.05,
+        "ui:group": "Icons"
+      },
+      "iconBackdrop": {
+        "type": "string",
+        "title": "Sun / moon icon background",
+        "enum": ["sky", "plain", "none"],
+        "enumLabels": ["Sky color for the time of day", "Plain circle", "None"],
+        "ui:widget": "select",
+        "ui:group": "Icons"
+      },
+      "showSideIcons": {
+        "type": "boolean",
+        "title": "Show sunrise and sunset icons",
+        "ui:widget": "toggle",
+        "ui:group": "Icons"
+      },
+      "iconStyle": {
+        "type": "string",
+        "title": "Icon style",
+        "enum": ["color", "line"],
+        "enumLabels": ["Color", "Line"],
+        "ui:widget": "select",
+        "ui:group": "Icons"
+      },
+      "showLabels": {
+        "type": "boolean",
+        "title": "Show rise / set labels",
+        "ui:widget": "toggle",
+        "ui:group": "Arc"
+      },
+      "showNoon": {
+        "type": "boolean",
+        "title": "Show noon marker",
+        "ui:widget": "toggle",
+        "ui:group": "Arc"
+      },
+      "showSunOnArc": {
+        "type": "boolean",
+        "title": "Show the sun's position on the arc",
+        "ui:widget": "toggle",
+        "ui:group": "Arc"
+      },
+      "accentColor": {
+        "type": "string",
+        "title": "Sun color",
+        "ui:widget": "color",
+        "ui:group": "Arc"
+      },
+      "softShadow": {
+        "type": "boolean",
+        "title": "Soft shadow for readability",
+        "ui:widget": "toggle",
+        "ui:group": "Arc"
+      }
+    }
+  },
+  "exports": {
+    "component": "default"
+  },
+  "dataRequirements": [
+    "location"
+  ],
+  "prefetchUrl": null,
+  "permissions": []
+}
